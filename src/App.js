@@ -8,6 +8,7 @@ import potABI from "./abi/Pot.abi.json";
 import chaiABI from "./abi/Chai.abi.json";
 import scEthABI from "./abi/scEth.abi.json";
 import wethABI from "./abi/Weth.abi.json";
+import chainLinkABI from "./abi/ChainlinkOracle.abi.json";
 
 import NavContainer from "./containers/Nav";
 import JoinExitContainer from "./containers/JoinExit";
@@ -57,6 +58,7 @@ const initialState = {
   chaiObject: new web3.eth.Contract(chaiABI, config.CHAI),
   scEthObject: new web3.eth.Contract(scEthABI, config.scETH),
   wethABI: new web3.eth.Contract(wethABI, config.WETH),
+  ethUsdObject: new web3.eth.Contract(chainLinkABI, config.ETHUSD),
   walletAddress: "",
   walletConnecting: false,
   walletType: "",
@@ -69,13 +71,14 @@ const initialState = {
   chaiBalanceDecimal: new WadDecimal(0),
   dsrRaw: "",
   dsr: "",
-  chi: "",
-  chiRaw: "",
+  chi: "1",
+  chiRaw: "1",
   chaiTotalSupply: "",
   joinAmount: new WadDecimal(0),
   exitAmount: new WadDecimal(0),
   joinexitAction: 0,
   transferAmount: new WadDecimal(0),
+  ethUsdRate: "1",
 };
 
 class App extends React.Component {

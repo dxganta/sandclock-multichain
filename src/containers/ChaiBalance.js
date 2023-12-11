@@ -31,7 +31,7 @@ class ChaiBalanceContainer extends React.Component {
     await getData.bind(this)();
     setInterval(() => {
       getData.bind(this)();
-    }, 10 * 1000);
+    }, 60 * 1000);
   }
 
   render() {
@@ -47,7 +47,7 @@ class ChaiBalanceContainer extends React.Component {
     return (
       <Card>
         <CardContent>
-          <h2>You have {chaiBalance ? daiEquiv : "0"} Dai brewing</h2>
+          <h3>Vault Details</h3>
           <CardMedia
             component="img"
             style={{
@@ -58,13 +58,17 @@ class ChaiBalanceContainer extends React.Component {
             }}
             src={logostill}
           />
-
+          <p>1 scETH = {chi ? `${chi}` : "?"} WETH</p>
           <p>scETH balance: {chaiBalance ? `${chaiBalance}` : "-"}</p>
-          <p>1 CHAI = {chi ? `${chi}` : "?"} DAI</p>
+          <p>Equivalent Weth: {chaiBalance ? daiEquiv : "-"}</p>
           <p>
-            Dai Savings Rate: {dsrPercent ? `${dsrPercent}% per year` : "-"}
-          </p>
-          <a target="_blank" href="/about.html" rel="noopener noreferrer">
+            <a href="https://app.sandclock.org/">Expected APY</a>
+          </p>{" "}
+          <a
+            target="_blank"
+            href="https://docs.sandclock.org/current/strategies/v2/emerald-sceth"
+            rel="noopener noreferrer"
+          >
             Learn more
           </a>
         </CardContent>

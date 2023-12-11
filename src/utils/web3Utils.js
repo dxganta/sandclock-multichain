@@ -5,6 +5,8 @@ import potABI from "../abi/Pot.abi.json";
 import chaiABI from "../abi/Chai.abi.json";
 import scEthABI from "../abi/scEth.abi.json";
 import wethABI from "../abi/Weth.abi.json";
+import chainLinkABI from "../abi/ChainlinkOracle.abi.json";
+
 let Decimal = require("decimal.js-light");
 Decimal = require("toformat")(Decimal);
 
@@ -13,6 +15,7 @@ const potAddress = config.MCD_POT;
 const chaiAddress = config.CHAI;
 const scEthAddress = config.scETH;
 const wethAddress = config.WETH;
+const ethUsdAddress = config.ETHUSD;
 
 export const WadDecimal = Decimal.clone({
   rounding: 1, // round down
@@ -49,12 +52,20 @@ export const getPotDsr = async function () {
 
 export const getPotChi = async function () {
   const { store } = this.props;
-  const pot = store.get("potObject");
-  if (!pot) return;
-  const chiRaw = await pot.methods.chi().call();
+
+  const scEth = store.get("scEthObject");
+  if (!scEth) return;
+  const totalSupply = await scEth.methods.totalSupply().call();
+  const totalAssets = await scEth.methods.totalAssets().call();
+
+  const chiRaw = new WadDecimal(totalAssets)
+    .mul("1e18")
+    .div(totalSupply)
+    .toFixed(0);
+
   if (chiRaw === store.get("chiRaw")) return;
   store.set("chiRaw", chiRaw);
-  let chi = toFixed(new WadDecimal(chiRaw).div("1e27"), 5);
+  let chi = toFixed(new WadDecimal(chiRaw).div("1e18"), 5);
   store.set("chi", chi.toString());
 };
 
@@ -133,6 +144,15 @@ export const toDai = function (chaiAmount) {
   return chiDecimal.mul(chaiDecimal);
 };
 
+export const updateEthToUsd = async function () {
+  const { store } = this.props;
+  const ethUsdObject = store.get("ethUsdObject");
+  if (!ethUsdObject) return;
+  const ethUsdRaw = await ethUsdObject.methods.latestAnswer().call();
+  const ethUsd = new WadDecimal(ethUsdRaw).div("1e8");
+  store.set("ethUsdRate", ethUsd);
+};
+
 export const setupContracts = function () {
   const { store } = this.props;
   const web3 = store.get("web3");
@@ -141,6 +161,7 @@ export const setupContracts = function () {
   store.set("chaiObject", new web3.eth.Contract(chaiABI, chaiAddress));
   store.set("scEthObject", new web3.eth.Contract(scEthABI, scEthAddress));
   store.set("wethObject", new web3.eth.Contract(wethABI, wethAddress));
+  store.set("ethUsdObject", new web3.eth.Contract(chainLinkABI, ethUsdAddress));
 };
 
 export const getData = async function () {
@@ -150,6 +171,7 @@ export const getData = async function () {
   getDaiBalance.bind(this)();
   getChaiBalance.bind(this)();
   getChaiTotalSupply.bind(this)();
+  updateEthToUsd.bind(this)();
 };
 
 const secondsInYear = WadDecimal(60 * 60 * 24 * 365);
