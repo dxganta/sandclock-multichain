@@ -139,8 +139,8 @@ class TransferChaiContainer extends React.Component {
                     helperText={
                       isSignedIn && transferAmount
                         ? "Worth: ~" +
-                          toDai.bind(this)(transferAmount.mul(10 ** 18)) +
-                          " scUSDC"
+                          toDai.bind(this)(transferAmount.mul(10 ** 6)) +
+                          " USDC"
                         : " "
                     }
                   />

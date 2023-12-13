@@ -78,7 +78,7 @@ const initialState = {
   exitAmount: new WadDecimal(0),
   joinexitAction: 0,
   transferAmount: new WadDecimal(0),
-  ethUsdRate: "1",
+  ltv: "",
 };
 
 class App extends React.Component {
@@ -110,7 +110,7 @@ class App extends React.Component {
               <TransferChaiContainer />
             </Grid>
             <Grid item xs={12} className={classes.footer}>
-              Interacting with the scETH contract at:{" "}
+              Interacting with the scUSDC contract at:{" "}
               <a
                 target="_blank"
                 href={"https://etherscan.io/token/" + config.scUSDC}
@@ -120,7 +120,7 @@ class App extends React.Component {
               </a>
               <br />
               <TotalSupplyContainer />
-              <a href="https://www.sandclock.org/">Learn more about scETH</a>
+              <a href="https://www.sandclock.org/">Learn more about scUSDC</a>
             </Grid>
             <Grid item xs={12} className={classes.footer}>
               UI Forked from{" "}

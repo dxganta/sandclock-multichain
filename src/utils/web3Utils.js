@@ -57,7 +57,7 @@ export const getPotChi = async function () {
   const totalAssets = await scEth.methods.totalAssets().call();
 
   const chiRaw = new WadDecimal(totalAssets)
-    .mul("16")
+    .mul("1e6")
     .div(totalSupply)
     .toFixed(0);
 
@@ -119,10 +119,23 @@ export const getChaiTotalSupply = async function () {
   const { store } = this.props;
   const web3 = store.get("web3");
   const scEth = store.get("scEthObject");
+  const ethUsdObject = store.get("ethUsdObject");
   if (!scEth) return;
   const scEthTvlRaw = await scEth.methods.totalAssets().call();
+
+  if (ethUsdObject) {
+    const ethUsdRaw = await ethUsdObject.methods.latestAnswer().call();
+    let totalDebt = await scEth.methods.totalDebt().call();
+    const totalCollateral = await scEth.methods.totalCollateral().call();
+
+    // debt is in ETH, convert to USD
+    totalDebt = new WadDecimal(totalDebt).mul(ethUsdRaw).div("1e20").toFixed(0);
+
+    const ltv = new WadDecimal(totalDebt).div(totalCollateral).toFixed(3);
+    store.set("ltv", ltv);
+  }
+
   const scEthTvlDecimal = new WadDecimal(scEthTvlRaw);
-  console.log(scEthTvlDecimal);
   store.set("chaiTotalSupply", toDai.bind(this)(scEthTvlDecimal));
 };
 
@@ -146,14 +159,14 @@ export const toDai = function (chaiAmount) {
   return chiDecimal.mul(chaiDecimal);
 };
 
-export const updateEthToUsd = async function () {
-  const { store } = this.props;
-  const ethUsdObject = store.get("ethUsdObject");
-  if (!ethUsdObject) return;
-  const ethUsdRaw = await ethUsdObject.methods.latestAnswer().call();
-  const ethUsd = new WadDecimal(ethUsdRaw).div("1e8");
-  store.set("ethUsdRate", ethUsd);
-};
+// export const updateEthToUsd = async function () {
+//   const { store } = this.props;
+//   const ethUsdObject = store.get("ethUsdObject");
+//   if (!ethUsdObject) return;
+//   const ethUsdRaw = await ethUsdObject.methods.latestAnswer().call();
+//   const ethUsd = new WadDecimal(ethUsdRaw).div("1e8");
+//   store.set("ethUsdRate", ethUsd);
+// };
 
 export const setupContracts = function () {
   const { store } = this.props;
@@ -172,7 +185,7 @@ export const getData = async function () {
   getDaiBalance.bind(this)();
   getChaiBalance.bind(this)();
   getChaiTotalSupply.bind(this)();
-  updateEthToUsd.bind(this)();
+  // updateEthToUsd.bind(this)();
 };
 
 const secondsInYear = WadDecimal(60 * 60 * 24 * 365);
