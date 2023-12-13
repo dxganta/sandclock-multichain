@@ -4,7 +4,7 @@ export const exit = async function () {
   const { store } = this.props;
   const web3 = store.get("web3");
   const scEth = store.get("scEthObject");
-  const exitAmount = store.get("exitAmount").mul(10 ** 18);
+  const exitAmount = store.get("exitAmount").mul(10 ** 6);
   const walletAddress = store.get("walletAddress");
   return scEth.methods
     .redeem(exitAmount.toFixed(), walletAddress, walletAddress)
@@ -27,12 +27,12 @@ export const join = async function () {
       .send({ from: walletAddress })
       .then(function () {
         return scEth.methods
-          .deposit(joinAmount.mul(10 ** 18).toFixed(), walletAddress)
+          .deposit(joinAmount.mul(10 ** 6).toFixed(), walletAddress)
           .send({ from: walletAddress });
       });
   }
   return scEth.methods
-    .deposit(joinAmount.mul(10 ** 18).toFixed(), walletAddress)
+    .deposit(joinAmount.mul(10 ** 6).toFixed(), walletAddress)
     .send({ from: walletAddress });
 };
 
@@ -40,7 +40,7 @@ export const transfer = async function () {
   const { store } = this.props;
   const web3 = store.get("web3");
   const scEth = store.get("scEthObject");
-  const transferAmount = store.get("transferAmount").mul(10 ** 18);
+  const transferAmount = store.get("transferAmount").mul(10 ** 6);
   const transferAddress = store.get("transferAddress");
   const walletAddress = store.get("walletAddress");
   return scEth.methods

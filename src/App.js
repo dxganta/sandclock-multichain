@@ -56,8 +56,8 @@ const initialState = {
   potObject: new web3.eth.Contract(potABI, config.MCD_POT),
   daiObject: new web3.eth.Contract(daiABI, config.MCD_DAI),
   chaiObject: new web3.eth.Contract(chaiABI, config.CHAI),
-  scEthObject: new web3.eth.Contract(scEthABI, config.scETH),
-  wethABI: new web3.eth.Contract(wethABI, config.WETH),
+  scEthObject: new web3.eth.Contract(scEthABI, config.scUSDC),
+  wethABI: new web3.eth.Contract(wethABI, config.USDC),
   ethUsdObject: new web3.eth.Contract(chainLinkABI, config.ETHUSD),
   walletAddress: "",
   walletConnecting: false,
@@ -113,10 +113,10 @@ class App extends React.Component {
               Interacting with the scETH contract at:{" "}
               <a
                 target="_blank"
-                href={"https://etherscan.io/token/" + config.scETH}
+                href={"https://etherscan.io/token/" + config.scUSDC}
                 rel="noopener noreferrer"
               >
-                {config.scETH}
+                {config.scUSDC}
               </a>
               <br />
               <TotalSupplyContainer />

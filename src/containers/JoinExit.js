@@ -115,14 +115,14 @@ class JoinExitContainer extends React.Component {
           onChange={this.handleChange.bind(this)}
           centered
         >
-          <Tab label="Weth -> scETH" id="join-tab" />
-          <Tab label="scETH -> Weth" id="exit-tab" />
+          <Tab label="USDC -> scUSDC" id="join-tab" />
+          <Tab label="scUSDC -> USDC" id="exit-tab" />
         </Tabs>
         <CardContent>
           <Box hidden={joinexitAction !== 0}>
             {" "}
             <Typography variant="subtitle2">
-              Start earning interest by converting WETH to scETH
+              Start earning interest by converting USDC to scUSDC
             </Typography>
             <Button
               variant="subtitle2"
@@ -130,10 +130,10 @@ class JoinExitContainer extends React.Component {
               style={{ textTransform: "none" }}
               onClick={this.setMax.bind(this)}
             >
-              {daiBalance ? `Balance: ${daiBalance} WETH` : "-"}
+              {daiBalance ? `Balance: ${daiBalance} USDC` : "-"}
             </Button>
             <TextField
-              label="WETH Amount"
+              label="USDC Amount"
               placeholder="0"
               className={classes.input}
               value={joinAmount.toString() !== "0" ? joinAmount : ""}
@@ -148,7 +148,7 @@ class JoinExitContainer extends React.Component {
                     className={classes.endAdornment}
                     position="end"
                   >
-                    WETH
+                    USDC
                   </InputAdornment>
                 ),
               }}
@@ -156,7 +156,7 @@ class JoinExitContainer extends React.Component {
                 isSignedIn && joinAmount
                   ? "You will receive approximately " +
                     toChai.bind(this)(web3.utils.toWei(String(joinAmount))) +
-                    " scETH"
+                    " scUSDC"
                   : " "
               }
             />
@@ -175,7 +175,7 @@ class JoinExitContainer extends React.Component {
           </Box>
           <Box hidden={joinexitAction !== 1}>
             <Typography variant="subtitle2">
-              Convert scETH back to Weth
+              Convert scUSDC back to USDC
             </Typography>
             <Button
               variant="subtitle2"
@@ -183,10 +183,10 @@ class JoinExitContainer extends React.Component {
               style={{ textTransform: "none" }}
               onClick={this.setMax.bind(this)}
             >
-              {chaiBalance ? `Balance: ${chaiBalance} scETH` : "-"}
+              {chaiBalance ? `Balance: ${chaiBalance} scUSDC` : "-"}
             </Button>
             <TextField
-              label="scETH Amount"
+              label="scUSDC Amount"
               placeholder="0"
               className={classes.input}
               margin="normal"
@@ -201,7 +201,7 @@ class JoinExitContainer extends React.Component {
                     className={classes.endAdornment}
                     position="end"
                   >
-                    scETH
+                    scUSDC
                   </InputAdornment>
                 ),
               }}
@@ -209,7 +209,7 @@ class JoinExitContainer extends React.Component {
                 isSignedIn && exitAmount
                   ? "You will receive at least: " +
                     toDai.bind(this)(web3.utils.toWei(String(exitAmount))) +
-                    " Weth"
+                    " USDC"
                   : " "
               }
             />

@@ -88,9 +88,9 @@ class TransferChaiContainer extends React.Component {
         <Grid item xs={12}>
           <Card>
             <CardContent>
-              <Typography variant="h4">Transfer scETH</Typography>
+              <Typography variant="h4">Transfer scUSDC</Typography>
               <Typography variant="subtitle2">
-                Send scETH to any address
+                Send scUSDC to any address
               </Typography>
               <Button
                 variant="subtitle2"
@@ -98,7 +98,7 @@ class TransferChaiContainer extends React.Component {
                 style={{ textTransform: "none" }}
                 onClick={this.setMax.bind(this)}
               >
-                {chaiBalance ? `Balance: ${chaiBalance} scETH` : "-"}
+                {chaiBalance ? `Balance: ${chaiBalance} scUSDC` : "-"}
               </Button>
               <Grid container alignItems="start" spacing={3}>
                 <Grid item xs={12} md={6}>
@@ -115,7 +115,7 @@ class TransferChaiContainer extends React.Component {
                 </Grid>
                 <Grid item xs={12} md={6} spacing={3}>
                   <TextField
-                    label="scETH Value"
+                    label="scUSDC Value"
                     placeholder="0"
                     className={classes.input}
                     margin="normal"
@@ -132,7 +132,7 @@ class TransferChaiContainer extends React.Component {
                           className={classes.endAdornment}
                           position="end"
                         >
-                          scETH
+                          scUSDC
                         </InputAdornment>
                       ),
                     }}
@@ -140,7 +140,7 @@ class TransferChaiContainer extends React.Component {
                       isSignedIn && transferAmount
                         ? "Worth: ~" +
                           toDai.bind(this)(transferAmount.mul(10 ** 18)) +
-                          " Weth"
+                          " scUSDC"
                         : " "
                     }
                   />

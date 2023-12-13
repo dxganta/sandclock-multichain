@@ -58,15 +58,15 @@ class ChaiBalanceContainer extends React.Component {
             }}
             src={logostill}
           />
-          <p>1 scETH = {chi ? `${chi}` : "?"} WETH</p>
-          <p>scETH balance: {chaiBalance ? `${chaiBalance}` : "-"}</p>
-          <p>Equivalent Weth: {chaiBalance ? daiEquiv : "-"}</p>
+          <p>1 scUSDC = {chi ? `${chi}` : "?"} USDC</p>
+          <p>scUSDC balance: {chaiBalance ? `${chaiBalance}` : "-"}</p>
+          <p>Equivalent USDC: {chaiBalance ? daiEquiv : "-"}</p>
           <p>
             <a href="https://app.sandclock.org/">Expected APY</a>
           </p>{" "}
           <a
             target="_blank"
-            href="https://docs.sandclock.org/current/strategies/v2/emerald-sceth"
+            href="https://docs.sandclock.org/current/strategies/v2/opal-scusdc"
             rel="noopener noreferrer"
           >
             Learn more

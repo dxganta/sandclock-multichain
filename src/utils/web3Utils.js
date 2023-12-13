@@ -2,7 +2,6 @@ import Web3 from "web3";
 import config from "../config.json";
 import daiABI from "../abi/Dai.abi.json";
 import potABI from "../abi/Pot.abi.json";
-import chaiABI from "../abi/Chai.abi.json";
 import scEthABI from "../abi/scEth.abi.json";
 import wethABI from "../abi/Weth.abi.json";
 import chainLinkABI from "../abi/ChainlinkOracle.abi.json";
@@ -12,9 +11,8 @@ Decimal = require("toformat")(Decimal);
 
 const daiAddress = config.MCD_DAI;
 const potAddress = config.MCD_POT;
-const chaiAddress = config.CHAI;
-const scEthAddress = config.scETH;
-const wethAddress = config.WETH;
+const scEthAddress = config.scUSDC;
+const wethAddress = config.USDC;
 const ethUsdAddress = config.ETHUSD;
 
 export const WadDecimal = Decimal.clone({
@@ -69,19 +67,19 @@ export const getPotChi = async function () {
   store.set("chi", chi.toString());
 };
 
-// get Weth Allowance
+// get Usdc Allowance
 export const getDaiAllowance = async function () {
   const { store } = this.props;
   const walletAddress = store.get("walletAddress");
   const weth = store.get("wethObject");
   if (!weth || !walletAddress) return;
   const daiAllowance = await weth.methods
-    .allowance(walletAddress, chaiAddress)
+    .allowance(walletAddress, scEthAddress)
     .call();
-  store.set("daiAllowance", new WadDecimal(daiAllowance).div("1e18"));
+  store.set("daiAllowance", new WadDecimal(daiAllowance).div("1e6"));
 };
 
-// get Weth Balance
+// get Usdc Balance
 export const getDaiBalance = async function () {
   const { store } = this.props;
   const web3 = store.get("web3");
@@ -89,13 +87,16 @@ export const getDaiBalance = async function () {
   const weth = store.get("wethObject");
   if (!weth || !walletAddress) return;
   const daiBalanceRaw = await weth.methods.balanceOf(walletAddress).call();
-  const daiBalanceDecimal = new WadDecimal(daiBalanceRaw).div("1e18");
+  const daiBalanceDecimal = new WadDecimal(daiBalanceRaw).div("1e6");
   store.set("daiBalanceDecimal", daiBalanceDecimal);
-  const daiBalance = toFixed(parseFloat(web3.utils.fromWei(daiBalanceRaw)), 5);
+  const daiBalance = toFixed(
+    parseFloat(web3.utils.fromWei(daiBalanceRaw, "mwei")),
+    5
+  );
   store.set("daiBalance", daiBalance);
 };
 
-// get scETH Balance
+// get scUSDC Balance
 export const getChaiBalance = async function () {
   const { store } = this.props;
   const web3 = store.get("web3");
@@ -121,6 +122,7 @@ export const getChaiTotalSupply = async function () {
   if (!scEth) return;
   const scEthTvlRaw = await scEth.methods.totalAssets().call();
   const scEthTvlDecimal = new WadDecimal(scEthTvlRaw);
+  console.log(scEthTvlDecimal);
   store.set("chaiTotalSupply", toDai.bind(this)(scEthTvlDecimal));
 };
 
@@ -136,7 +138,7 @@ export const toChai = function (daiAmount) {
 
 export const toDai = function (chaiAmount) {
   const chaiDecimal = chaiAmount
-    ? new WadDecimal(chaiAmount).div("1e18")
+    ? new WadDecimal(chaiAmount).div("1e6")
     : new WadDecimal(0);
   const { store } = this.props;
   if (!store.get("chi")) return;
@@ -158,7 +160,6 @@ export const setupContracts = function () {
   const web3 = store.get("web3");
   store.set("potObject", new web3.eth.Contract(potABI, potAddress));
   store.set("daiObject", new web3.eth.Contract(daiABI, daiAddress));
-  store.set("chaiObject", new web3.eth.Contract(chaiABI, chaiAddress));
   store.set("scEthObject", new web3.eth.Contract(scEthABI, scEthAddress));
   store.set("wethObject", new web3.eth.Contract(wethABI, wethAddress));
   store.set("ethUsdObject", new web3.eth.Contract(chainLinkABI, ethUsdAddress));
