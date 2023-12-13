@@ -155,7 +155,9 @@ class JoinExitContainer extends React.Component {
               helperText={
                 isSignedIn && joinAmount
                   ? "You will receive approximately " +
-                    toChai.bind(this)(web3.utils.toWei(String(joinAmount))) +
+                    toChai.bind(this)(
+                      web3.utils.toWei(String(joinAmount), "mwei")
+                    ) +
                     " scUSDC"
                   : " "
               }
@@ -208,7 +210,9 @@ class JoinExitContainer extends React.Component {
               helperText={
                 isSignedIn && exitAmount
                   ? "You will receive at least: " +
-                    toDai.bind(this)(web3.utils.toWei(String(exitAmount))) +
+                    toDai.bind(this)(
+                      web3.utils.toWei(String(exitAmount), "mwei")
+                    ) +
                     " USDC"
                   : " "
               }

@@ -57,13 +57,13 @@ export const getPotChi = async function () {
   const totalAssets = await scEth.methods.totalAssets().call();
 
   const chiRaw = new WadDecimal(totalAssets)
-    .mul("1e18")
+    .mul("16")
     .div(totalSupply)
     .toFixed(0);
 
   if (chiRaw === store.get("chiRaw")) return;
   store.set("chiRaw", chiRaw);
-  let chi = toFixed(new WadDecimal(chiRaw).div("1e18"), 5);
+  let chi = toFixed(new WadDecimal(chiRaw).div("1e6"), 5);
   store.set("chi", chi.toString());
 };
 
@@ -105,10 +105,10 @@ export const getChaiBalance = async function () {
   if (!scEth || !walletAddress) return;
   const scEthBalanceRaw = await scEth.methods.balanceOf(walletAddress).call();
   store.set("chaiBalanceRaw", scEthBalanceRaw);
-  const scEthBalanceDecimal = new WadDecimal(scEthBalanceRaw).div("1e18");
+  const scEthBalanceDecimal = new WadDecimal(scEthBalanceRaw).div("1e6");
   store.set("chaiBalanceDecimal", scEthBalanceDecimal);
   const scEthBalance = toFixed(
-    parseFloat(web3.utils.fromWei(scEthBalanceRaw)),
+    parseFloat(web3.utils.fromWei(scEthBalanceRaw, "mwei")),
     5
   );
   store.set("chaiBalance", scEthBalance);
@@ -128,7 +128,7 @@ export const getChaiTotalSupply = async function () {
 
 export const toChai = function (daiAmount) {
   const daiDecimal = daiAmount
-    ? new WadDecimal(daiAmount).div("1e18")
+    ? new WadDecimal(daiAmount).div("1e6")
     : new WadDecimal(0);
   const { store } = this.props;
   if (!store.get("chi")) return;
