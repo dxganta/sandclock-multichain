@@ -2,7 +2,6 @@ import Web3 from "web3";
 import config from "../config.json";
 import daiABI from "../abi/Dai.abi.json";
 import potABI from "../abi/Pot.abi.json";
-import chaiABI from "../abi/Chai.abi.json";
 import scEthABI from "../abi/scEth.abi.json";
 import wethABI from "../abi/Weth.abi.json";
 import chainLinkABI from "../abi/ChainlinkOracle.abi.json";
@@ -12,7 +11,6 @@ Decimal = require("toformat")(Decimal);
 
 const daiAddress = config.MCD_DAI;
 const potAddress = config.MCD_POT;
-const chaiAddress = config.CHAI;
 const scEthAddress = config.scETH;
 const wethAddress = config.WETH;
 const ethUsdAddress = config.ETHUSD;
@@ -76,7 +74,7 @@ export const getDaiAllowance = async function () {
   const weth = store.get("wethObject");
   if (!weth || !walletAddress) return;
   const daiAllowance = await weth.methods
-    .allowance(walletAddress, chaiAddress)
+    .allowance(walletAddress, scEthAddress)
     .call();
   store.set("daiAllowance", new WadDecimal(daiAllowance).div("1e18"));
 };
@@ -158,7 +156,6 @@ export const setupContracts = function () {
   const web3 = store.get("web3");
   store.set("potObject", new web3.eth.Contract(potABI, potAddress));
   store.set("daiObject", new web3.eth.Contract(daiABI, daiAddress));
-  store.set("chaiObject", new web3.eth.Contract(chaiABI, chaiAddress));
   store.set("scEthObject", new web3.eth.Contract(scEthABI, scEthAddress));
   store.set("wethObject", new web3.eth.Contract(wethABI, wethAddress));
   store.set("ethUsdObject", new web3.eth.Contract(chainLinkABI, ethUsdAddress));
