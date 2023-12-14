@@ -5,6 +5,7 @@ import potABI from "../abi/Pot.abi.json";
 import scEthABI from "../abi/scEth.abi.json";
 import wethABI from "../abi/Weth.abi.json";
 import chainLinkABI from "../abi/ChainlinkOracle.abi.json";
+import priceConverterABI from "../abi/PriceConverter.abi.json";
 
 let Decimal = require("decimal.js-light");
 Decimal = require("toformat")(Decimal);
@@ -14,6 +15,7 @@ const potAddress = config.MCD_POT;
 const scEthAddress = config.scETH;
 const wethAddress = config.WETH;
 const ethUsdAddress = config.ETHUSD;
+const priceConverterAddress = config.PRICE_CONVERTER;
 
 export const WadDecimal = Decimal.clone({
   rounding: 1, // round down
@@ -115,8 +117,30 @@ export const getChaiBalance = async function () {
 export const getChaiTotalSupply = async function () {
   const { store } = this.props;
   const web3 = store.get("web3");
+  const ethUsdObject = store.get("ethUsdObject");
+  const priceConverter = store.get("priceConverterObject");
   const scEth = store.get("scEthObject");
   if (!scEth) return;
+
+  if (ethUsdObject) {
+    const ethUsdRaw = await ethUsdObject.methods.latestAnswer().call();
+
+    store.set("ethUsdRate", new WadDecimal(ethUsdRaw).div("1e8"));
+
+    const totalDebt = await scEth.methods.totalDebt().call();
+    let totalCollateral = await scEth.methods.totalCollateral().call();
+
+    console.log("totalCollateral", totalCollateral);
+
+    totalCollateral = await priceConverter.methods
+      .wstEthToEth(totalCollateral)
+      .call();
+    console.log("totalCollateral", totalCollateral);
+
+    const ltv = new WadDecimal(totalDebt).div(totalCollateral).toFixed(3);
+    store.set("ltv", ltv);
+  }
+
   const scEthTvlRaw = await scEth.methods.totalAssets().call();
   const scEthTvlDecimal = new WadDecimal(scEthTvlRaw);
   store.set("chaiTotalSupply", toDai.bind(this)(scEthTvlDecimal));
@@ -142,14 +166,14 @@ export const toDai = function (chaiAmount) {
   return chiDecimal.mul(chaiDecimal);
 };
 
-export const updateEthToUsd = async function () {
-  const { store } = this.props;
-  const ethUsdObject = store.get("ethUsdObject");
-  if (!ethUsdObject) return;
-  const ethUsdRaw = await ethUsdObject.methods.latestAnswer().call();
-  const ethUsd = new WadDecimal(ethUsdRaw).div("1e8");
-  store.set("ethUsdRate", ethUsd);
-};
+// export const updateEthToUsd = async function () {
+//   const { store } = this.props;
+//   const ethUsdObject = store.get("ethUsdObject");
+//   if (!ethUsdObject) return;
+//   const ethUsdRaw = await ethUsdObject.methods.latestAnswer().call();
+//   const ethUsd = new WadDecimal(ethUsdRaw).div("1e8");
+//   store.set("ethUsdRate", ethUsd);
+// };
 
 export const setupContracts = function () {
   const { store } = this.props;
@@ -159,6 +183,10 @@ export const setupContracts = function () {
   store.set("scEthObject", new web3.eth.Contract(scEthABI, scEthAddress));
   store.set("wethObject", new web3.eth.Contract(wethABI, wethAddress));
   store.set("ethUsdObject", new web3.eth.Contract(chainLinkABI, ethUsdAddress));
+  store.set(
+    "priceConverterObject",
+    new web3.eth.Contract(priceConverterABI, priceConverterAddress)
+  );
 };
 
 export const getData = async function () {
@@ -168,7 +196,7 @@ export const getData = async function () {
   getDaiBalance.bind(this)();
   getChaiBalance.bind(this)();
   getChaiTotalSupply.bind(this)();
-  updateEthToUsd.bind(this)();
+  // updateEthToUsd.bind(this)();
 };
 
 const secondsInYear = WadDecimal(60 * 60 * 24 * 365);
