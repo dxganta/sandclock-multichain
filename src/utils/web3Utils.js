@@ -113,6 +113,43 @@ export const getChaiBalance = async function () {
   store.set("chaiBalance", scEthBalance);
 };
 
+async function getBlockNumberSevenDaysAgo(web3, numberOfDays) {
+  const secondsPerDay = 24 * 60 * 60;
+  const days = numberOfDays;
+  const blockTime = 15; // in seconds
+
+  const currentBlockNumber = await web3.eth.getBlockNumber();
+  const blocksPerDay = secondsPerDay / blockTime;
+  const blocksSevenDaysAgo = currentBlockNumber - blocksPerDay * days;
+
+  return Math.round(blocksSevenDaysAgo);
+}
+
+export const getAPY = async function () {
+  const { store } = this.props;
+  const web3 = store.get("web3");
+  const scEth = store.get("scEthObject");
+
+  const totalAssets = await scEth.methods.totalAssets().call();
+  const totalSupply = await scEth.methods.totalSupply().call();
+  const pps = new WadDecimal(totalAssets).div(totalSupply);
+
+  const blockNumberPrev = await getBlockNumberSevenDaysAgo(web3, 30);
+
+  const totalAssetsPrev = await scEth.methods
+    .totalAssets()
+    .call(blockNumberPrev);
+  const totalSupplyPrev = await scEth.methods
+    .totalSupply()
+    .call(blockNumberPrev);
+
+  const ppsPrev = new WadDecimal(totalAssetsPrev).div(totalSupplyPrev);
+
+  const apy = (((pps - ppsPrev) * 365) / 7 / ppsPrev) * 100;
+
+  store.set("apy", apy.toFixed(2));
+};
+
 // todo: getscETHTotalTVL
 export const getChaiTotalSupply = async function () {
   const { store } = this.props;
@@ -198,6 +235,7 @@ export const getData = async function () {
   getDaiBalance.bind(this)();
   getChaiBalance.bind(this)();
   getChaiTotalSupply.bind(this)();
+  getAPY.bind(this)();
   // updateEthToUsd.bind(this)();
 };
 
