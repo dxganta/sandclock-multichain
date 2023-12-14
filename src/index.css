@@ -13,8 +13,12 @@ code {
     monospace;
 }
 
-.apy {
+.apy-green {
   color: green;
   font-weight: bold;
-  font-size: larger;
+  font-size: large;
+}
+
+.apy-red {
+  color: red;
 }

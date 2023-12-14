@@ -113,16 +113,15 @@ export const getChaiBalance = async function () {
   store.set("chaiBalance", scEthBalance);
 };
 
-async function getBlockNumberSevenDaysAgo(web3, numberOfDays) {
+async function getBlockNumberAtPast(web3, numberOfDays) {
   const secondsPerDay = 24 * 60 * 60;
-  const days = numberOfDays;
   const blockTime = 15; // in seconds
 
   const currentBlockNumber = await web3.eth.getBlockNumber();
   const blocksPerDay = secondsPerDay / blockTime;
-  const blocksSevenDaysAgo = currentBlockNumber - blocksPerDay * days;
+  const blocksDaysAgo = currentBlockNumber - blocksPerDay * numberOfDays;
 
-  return Math.round(blocksSevenDaysAgo);
+  return Math.round(blocksDaysAgo);
 }
 
 export const getAPY = async function () {
@@ -134,20 +133,25 @@ export const getAPY = async function () {
   const totalSupply = await scEth.methods.totalSupply().call();
   const pps = new WadDecimal(totalAssets).div(totalSupply);
 
-  const blockNumberPrev = await getBlockNumberSevenDaysAgo(web3, 30);
+  const days = [7, 14, 30];
 
-  const totalAssetsPrev = await scEth.methods
-    .totalAssets()
-    .call(blockNumberPrev);
-  const totalSupplyPrev = await scEth.methods
-    .totalSupply()
-    .call(blockNumberPrev);
+  // loop through days
+  for (let i = 0; i < days.length; i++) {
+    const blockNumberPrev = await getBlockNumberAtPast(web3, days[i]);
 
-  const ppsPrev = new WadDecimal(totalAssetsPrev).div(totalSupplyPrev);
+    const totalAssetsPrev = await scEth.methods
+      .totalAssets()
+      .call(blockNumberPrev);
+    const totalSupplyPrev = await scEth.methods
+      .totalSupply()
+      .call(blockNumberPrev);
 
-  const apy = (((pps - ppsPrev) * 365) / 7 / ppsPrev) * 100;
+    const ppsPrev = new WadDecimal(totalAssetsPrev).div(totalSupplyPrev);
 
-  store.set("apy", apy.toFixed(2));
+    const apy = ((pps - ppsPrev) * 365) / days[i] / ppsPrev;
+
+    store.set(`apy${days[i]}Day`, (apy * 100).toFixed(2));
+  }
 };
 
 // todo: getscETHTotalTVL

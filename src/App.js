@@ -86,7 +86,9 @@ const initialState = {
   ethUsdRate: "1",
   ltv: "",
   leverage: "",
-  apy: "",
+  apy7Day: "",
+  apy30Day: "",
+  apy14Day: "",
 };
 
 class App extends React.Component {
