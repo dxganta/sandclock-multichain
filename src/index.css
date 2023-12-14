@@ -12,3 +12,9 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+.apy {
+  color: green;
+  font-weight: bold;
+  font-size: larger;
+}

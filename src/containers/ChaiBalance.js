@@ -62,8 +62,11 @@ class ChaiBalanceContainer extends React.Component {
           <p>1 scETH = {chi ? `${chi}` : "?"} WETH</p>
           <p>scETH balance: {chaiBalance ? `${chaiBalance}` : "-"}</p>
           <p>Equivalent Weth: {chaiBalance ? daiEquiv : "-"}</p>
-          <p>30-Day APY : {apy ? `${apy}%` : "-"}</p>
-          <p>Current LTV: {ltv ? ltv : "-"}</p>
+          <p>
+            30-Day APY : {apy ? <span className="apy">{`${apy}%`}</span> : "-"}
+          </p>
+
+          <p>Net LTV: {ltv ? ltv : "-"}</p>
           <p>Leverage: {leverage ? leverage : "-"}x</p>
           <a
             target="_blank"
