@@ -115,12 +115,13 @@ export const getChaiBalance = async function () {
 
 async function getBlockNumberAtPast(web3, numberOfDays) {
   const secondsPerDay = 24 * 60 * 60;
-  const blockTime = 15; // in seconds
+  const blockTime = 12; // in seconds
 
   const currentBlockNumber = await web3.eth.getBlockNumber();
   const blocksPerDay = secondsPerDay / blockTime;
   const blocksDaysAgo = currentBlockNumber - blocksPerDay * numberOfDays;
 
+  console.log(numberOfDays, blockTime, currentBlockNumber, blocksDaysAgo);
   return Math.round(blocksDaysAgo);
 }
 
@@ -149,6 +150,8 @@ export const getAPY = async function () {
     const ppsPrev = new WadDecimal(totalAssetsPrev).div(totalSupplyPrev);
 
     const apy = ((pps - ppsPrev) * 365) / days[i] / ppsPrev;
+    // const apy =
+    //   (1 + (pps - ppsPrev) / ppsPrev) ** Math.round(365 / days[i]) - 1;
 
     store.set(`apy${days[i]}Day`, (apy * 100).toFixed(2));
   }
