@@ -85,6 +85,7 @@ const initialState = {
   transferAmount: new WadDecimal(0),
   ethUsdRate: "1",
   ltv: "",
+  leverage: "",
 };
 
 class App extends React.Component {

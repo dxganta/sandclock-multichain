@@ -130,15 +130,17 @@ export const getChaiTotalSupply = async function () {
     const totalDebt = await scEth.methods.totalDebt().call();
     let totalCollateral = await scEth.methods.totalCollateral().call();
 
-    console.log("totalCollateral", totalCollateral);
-
     totalCollateral = await priceConverter.methods
       .wstEthToEth(totalCollateral)
       .call();
-    console.log("totalCollateral", totalCollateral);
+
+    const leverage = new WadDecimal(totalCollateral)
+      .div(totalCollateral - totalDebt)
+      .toFixed(1);
 
     const ltv = new WadDecimal(totalDebt).div(totalCollateral).toFixed(3);
     store.set("ltv", ltv);
+    store.set("leverage", leverage);
   }
 
   const scEthTvlRaw = await scEth.methods.totalAssets().call();

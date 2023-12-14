@@ -37,6 +37,7 @@ class ChaiBalanceContainer extends React.Component {
   render() {
     const { store } = this.props;
     const ltv = store.get("ltv");
+    const leverage = store.get("leverage");
     const chi = store.get("chi");
     const chaiBalance = store.get("chaiBalance");
     const chaiBalanceRaw = store.get("chaiBalanceRaw");
@@ -64,6 +65,7 @@ class ChaiBalanceContainer extends React.Component {
             <a href="https://app.sandclock.org/">Expected APY</a>
           </p>{" "}
           <p>Current LTV: {ltv ? ltv : "-"}</p>
+          <p>Leverage: {leverage ? leverage : "-"}x</p>
           <a
             target="_blank"
             href="https://docs.sandclock.org/current/strategies/v2/emerald-sceth"
