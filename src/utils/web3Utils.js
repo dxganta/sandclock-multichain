@@ -6,6 +6,7 @@ import scEthABI from "../abi/scEth.abi.json";
 import wethABI from "../abi/Weth.abi.json";
 import chainLinkABI from "../abi/ChainlinkOracle.abi.json";
 import priceConverterABI from "../abi/PriceConverter.abi.json";
+import wstEthABI from "../abi/Wsteth.abi.json";
 
 let Decimal = require("decimal.js-light");
 Decimal = require("toformat")(Decimal);
@@ -16,6 +17,8 @@ const scEthAddress = config.scETH;
 const wethAddress = config.WETH;
 const ethUsdAddress = config.ETHUSD;
 const priceConverterAddress = config.PRICE_CONVERTER;
+const wstEthAddress = config.WSTETH;
+const stethEthAddress = config.STETHETH;
 
 export const WadDecimal = Decimal.clone({
   rounding: 1, // round down
@@ -121,18 +124,51 @@ async function getBlockNumberAtPast(web3, numberOfDays) {
   const blocksPerDay = secondsPerDay / blockTime;
   const blocksDaysAgo = currentBlockNumber - blocksPerDay * numberOfDays;
 
-  console.log(numberOfDays, blockTime, currentBlockNumber, blocksDaysAgo);
+  // console.log(numberOfDays, blockTime, currentBlockNumber, blocksDaysAgo);
   return Math.round(blocksDaysAgo);
+}
+
+async function getPps(scEth, wstEth, blockNumber, stEthEthRate) {
+  let totalCollateral = await scEth.methods.totalCollateral().call(blockNumber);
+
+  totalCollateral = await wstEth.methods
+    .getStETHByWstETH(totalCollateral)
+    .call(blockNumber);
+
+  // use the same stEth to weth rate as of today
+  totalCollateral = new WadDecimal(totalCollateral)
+    .mul(stEthEthRate)
+    .div("1e18")
+    .toFixed(0);
+  console.log(blockNumber, "totalCollateral", totalCollateral.toString());
+
+  const totalDebt = await scEth.methods.totalDebt().call(blockNumber);
+
+  const totalAssets = totalCollateral - totalDebt;
+
+  console.log(blockNumber, "totalAssets", totalAssets.toString());
+
+  const totalSupply = await scEth.methods.totalSupply().call(blockNumber);
+
+  const pps = new WadDecimal(totalAssets).div(totalSupply);
+
+  return pps;
 }
 
 export const getAPY = async function () {
   const { store } = this.props;
   const web3 = store.get("web3");
   const scEth = store.get("scEthObject");
+  const wstEth = store.get("wstEthObject");
+  const stEthEthOracle = store.get("stethEthObject");
 
-  const totalAssets = await scEth.methods.totalAssets().call();
-  const totalSupply = await scEth.methods.totalSupply().call();
-  const pps = new WadDecimal(totalAssets).div(totalSupply);
+  const stEthEthRateRaw = await stEthEthOracle.methods.latestAnswer().call();
+
+  // const totalAssets = await scEth.methods.totalAssets().call();
+  // const totalSupply = await scEth.methods.totalSupply().call();
+  // const pps = new WadDecimal(totalAssets).div(totalSupply);
+  const pps = await getPps(scEth, wstEth, "latest", stEthEthRateRaw);
+  // console.log(pps.toString());
 
   const days = [7, 14, 30];
 
@@ -140,16 +176,26 @@ export const getAPY = async function () {
   for (let i = 0; i < days.length; i++) {
     const blockNumberPrev = await getBlockNumberAtPast(web3, days[i]);
 
-    const totalAssetsPrev = await scEth.methods
-      .totalAssets()
-      .call(blockNumberPrev);
-    const totalSupplyPrev = await scEth.methods
-      .totalSupply()
-      .call(blockNumberPrev);
+    // const totalAssetsPrev = await scEth.methods
+    //   .totalAssets()
+    //   .call(blockNumberPrev);
+    // const totalSupplyPrev = await scEth.methods
+    //   .totalSupply()
+    //   .call(blockNumberPrev);
 
-    const ppsPrev = new WadDecimal(totalAssetsPrev).div(totalSupplyPrev);
+    // const ppsPrev = new WadDecimal(totalAssetsPrev).div(totalSupplyPrev);
+
+    const ppsPrev = await getPps(
+      scEth,
+      wstEth,
+      blockNumberPrev,
+      stEthEthRateRaw
+    );
 
     const apy = ((pps - ppsPrev) * 365) / days[i] / ppsPrev;
+
+    console.log(blockNumberPrev, days[i], apy.toString());
+
     // const apy =
     //   (1 + (pps - ppsPrev) / ppsPrev) ** Math.round(365 / days[i]) - 1;
 
@@ -232,6 +278,11 @@ export const setupContracts = function () {
   store.set(
     "priceConverterObject",
     new web3.eth.Contract(priceConverterABI, priceConverterAddress)
+  );
+  store.set("wstEthObject", new web3.eth.Contract(wstEthABI, wstEthAddress));
+  store.set(
+    "stethEthObject",
+    new web3.eth.Contract(chainLinkABI, stethEthAddress)
   );
 };
 

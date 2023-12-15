@@ -10,6 +10,7 @@ import scEthABI from "./abi/scEth.abi.json";
 import wethABI from "./abi/Weth.abi.json";
 import chainLinkABI from "./abi/ChainlinkOracle.abi.json";
 import priceConverterABI from "./abi/PriceConverter.abi.json";
+import wstEthABI from "./abi/Wsteth.abi.json";
 
 import NavContainer from "./containers/Nav";
 import JoinExitContainer from "./containers/JoinExit";
@@ -60,10 +61,12 @@ const initialState = {
   scEthObject: new web3.eth.Contract(scEthABI, config.scETH),
   wethABI: new web3.eth.Contract(wethABI, config.WETH),
   ethUsdObject: new web3.eth.Contract(chainLinkABI, config.ETHUSD),
+  stethEthObject: new web3.eth.Contract(chainLinkABI, config.STETHETH),
   priceConverterObject: new web3.eth.Contract(
     priceConverterABI,
     config.PRICE_CONVERTER
   ),
+  wstEthObject: new web3.eth.Contract(wstEthABI, config.WSTETH),
   walletAddress: "",
   walletConnecting: false,
   walletType: "",
