@@ -128,25 +128,19 @@ async function getBlockNumberAtPast(web3, numberOfDays) {
   return Math.round(blocksDaysAgo);
 }
 
-async function getPps(scEth, wstEth, blockNumber, stEthEthRate) {
+async function getPps(weth, scEth, wstEth, blockNumber) {
   let totalCollateral = await scEth.methods.totalCollateral().call(blockNumber);
 
   totalCollateral = await wstEth.methods
     .getStETHByWstETH(totalCollateral)
     .call(blockNumber);
 
-  // use the same stEth to weth rate as of today
-  totalCollateral = new WadDecimal(totalCollateral)
-    .mul(stEthEthRate)
-    .div("1e18")
-    .toFixed(0);
-  console.log(blockNumber, "totalCollateral", totalCollateral.toString());
-
   const totalDebt = await scEth.methods.totalDebt().call(blockNumber);
 
-  const totalAssets = totalCollateral - totalDebt;
+  // get balance of weth in contract
+  const float = await weth.methods.balanceOf(scEthAddress).call(blockNumber);
 
-  console.log(blockNumber, "totalAssets", totalAssets.toString());
+  const totalAssets = new WadDecimal(float).add(totalCollateral - totalDebt);
 
   const totalSupply = await scEth.methods.totalSupply().call(blockNumber);
 
@@ -160,15 +154,9 @@ export const getAPY = async function () {
   const web3 = store.get("web3");
   const scEth = store.get("scEthObject");
   const wstEth = store.get("wstEthObject");
-  const stEthEthOracle = store.get("stethEthObject");
+  const weth = store.get("wethObject");
 
-  const stEthEthRateRaw = await stEthEthOracle.methods.latestAnswer().call();
-
-  // const totalAssets = await scEth.methods.totalAssets().call();
-  // const totalSupply = await scEth.methods.totalSupply().call();
-  // const pps = new WadDecimal(totalAssets).div(totalSupply);
-  const pps = await getPps(scEth, wstEth, "latest", stEthEthRateRaw);
-  // console.log(pps.toString());
+  const pps = await getPps(weth, scEth, wstEth, "latest");
 
   const days = [7, 14, 30];
 
@@ -176,25 +164,11 @@ export const getAPY = async function () {
   for (let i = 0; i < days.length; i++) {
     const blockNumberPrev = await getBlockNumberAtPast(web3, days[i]);
 
-    // const totalAssetsPrev = await scEth.methods
-    //   .totalAssets()
-    //   .call(blockNumberPrev);
-    // const totalSupplyPrev = await scEth.methods
-    //   .totalSupply()
-    //   .call(blockNumberPrev);
-
-    // const ppsPrev = new WadDecimal(totalAssetsPrev).div(totalSupplyPrev);
-
-    const ppsPrev = await getPps(
-      scEth,
-      wstEth,
-      blockNumberPrev,
-      stEthEthRateRaw
-    );
+    const ppsPrev = await getPps(weth, scEth, wstEth, blockNumberPrev);
 
     const apy = ((pps - ppsPrev) * 365) / days[i] / ppsPrev;
 
-    console.log(blockNumberPrev, days[i], apy.toString());
+    // console.log(blockNumberPrev, days[i], apy.toString());
 
     // const apy =
     //   (1 + (pps - ppsPrev) / ppsPrev) ** Math.round(365 / days[i]) - 1;
