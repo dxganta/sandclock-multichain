@@ -38,6 +38,9 @@ class ChaiBalanceContainer extends React.Component {
     const { store } = this.props;
     const ltv = store.get("ltv");
     const chi = store.get("chi");
+    const apy7Day = store.get("apy7Day");
+    const apy14Day = store.get("apy14Day");
+    const apy30Day = store.get("apy30Day");
     const chaiBalance = store.get("chaiBalance");
     const chaiBalanceRaw = store.get("chaiBalanceRaw");
     const daiEquiv = chaiBalanceRaw
@@ -62,7 +65,34 @@ class ChaiBalanceContainer extends React.Component {
           <p>scUSDC balance: {chaiBalance ? `${chaiBalance}` : "-"}</p>
           <p>Equivalent USDC: {chaiBalance ? daiEquiv : "-"}</p>
           <p>
-            <a href="https://app.sandclock.org/">Expected APY</a>
+            7-Day APR :{" "}
+            {apy7Day ? (
+              <span
+                className={apy7Day > 0 ? "apy-green" : "apy-red"}
+              >{`${apy7Day}%`}</span>
+            ) : (
+              "-"
+            )}
+          </p>
+          <p>
+            14-Day APR :{" "}
+            {apy14Day ? (
+              <span
+                className={apy14Day > 0 ? "apy-green" : "apy-red"}
+              >{`${apy14Day}%`}</span>
+            ) : (
+              "-"
+            )}
+          </p>
+          <p>
+            30-Day APR :{" "}
+            {apy30Day ? (
+              <span
+                className={apy30Day > 0 ? "apy-green" : "apy-red"}
+              >{`${apy30Day}%`}</span>
+            ) : (
+              "-"
+            )}
           </p>
 
           <p>Current LTV: {ltv ? ltv : "-"}</p>

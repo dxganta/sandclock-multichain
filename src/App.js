@@ -7,8 +7,11 @@ import daiABI from "./abi/Dai.abi.json";
 import potABI from "./abi/Pot.abi.json";
 import chaiABI from "./abi/Chai.abi.json";
 import scEthABI from "./abi/scEth.abi.json";
+import scUSDCABI from "./abi/scUSDC.abi.json";
 import wethABI from "./abi/Weth.abi.json";
 import chainLinkABI from "./abi/ChainlinkOracle.abi.json";
+import wstEthABI from "./abi/Wsteth.abi.json";
+import priceConverterABI from "./abi/PriceConverter.abi.json";
 
 import NavContainer from "./containers/Nav";
 import JoinExitContainer from "./containers/JoinExit";
@@ -56,9 +59,16 @@ const initialState = {
   potObject: new web3.eth.Contract(potABI, config.MCD_POT),
   daiObject: new web3.eth.Contract(daiABI, config.MCD_DAI),
   chaiObject: new web3.eth.Contract(chaiABI, config.CHAI),
-  scEthObject: new web3.eth.Contract(scEthABI, config.scUSDC),
-  wethABI: new web3.eth.Contract(wethABI, config.USDC),
+  scEthObject: new web3.eth.Contract(scEthABI, config.scETH),
+  scUsdcObject: new web3.eth.Contract(scUSDCABI, config.scUSDC),
+  usdcObject: new web3.eth.Contract(wethABI, config.USDC),
+  wethObject: new web3.eth.Contract(wethABI, config.WETH),
+  wstEthObject: new web3.eth.Contract(wstEthABI, config.WSTETH),
   ethUsdObject: new web3.eth.Contract(chainLinkABI, config.ETHUSD),
+  priceConverterObject: new web3.eth.Contract(
+    priceConverterABI,
+    config.PRICE_CONVERTER
+  ),
   walletAddress: "",
   walletConnecting: false,
   walletType: "",
@@ -79,6 +89,9 @@ const initialState = {
   joinexitAction: 0,
   transferAmount: new WadDecimal(0),
   ltv: "",
+  apy7Day: "",
+  apy14Day: "",
+  apy30Day: "",
 };
 
 class App extends React.Component {
