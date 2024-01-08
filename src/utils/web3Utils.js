@@ -250,7 +250,7 @@ async function getPps(
     blockNumber
   );
 
-  console.log(blockNumber, totalAssets.toString());
+  // console.log(blockNumber, totalAssets.toString());
 
   const totalSupply = await scUSDC.methods.totalSupply().call(blockNumber);
 
