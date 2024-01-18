@@ -36,17 +36,8 @@ class ChaiBalanceContainer extends React.Component {
 
   render() {
     const { store } = this.props;
-    const ltv = store.get("ltv");
-    const leverage = store.get("leverage");
-    const apy7Day = store.get("apy7Day");
-    const apy30Day = store.get("apy30Day");
-    const apy14Day = store.get("apy14Day");
     const chi = store.get("chi");
     const chaiBalance = store.get("chaiBalance");
-    const chaiBalanceRaw = store.get("chaiBalanceRaw");
-    const daiEquiv = chaiBalanceRaw
-      ? toDai.bind(this)(chaiBalanceRaw).toFormat(5)
-      : undefined;
     return (
       <Card>
         <CardContent>
@@ -63,40 +54,6 @@ class ChaiBalanceContainer extends React.Component {
           />
           <p>1 scETH = {chi ? `${chi}` : "?"} WETH</p>
           <p>scETH balance: {chaiBalance ? `${chaiBalance}` : "-"}</p>
-          <p>Equivalent Weth: {chaiBalance ? daiEquiv : "-"}</p>
-          <p>
-            7-Day APR :{" "}
-            {apy7Day ? (
-              <span
-                className={apy7Day > 0 ? "apy-green" : "apy-red"}
-              >{`${apy7Day}%`}</span>
-            ) : (
-              "-"
-            )}
-          </p>
-          <p>
-            14-Day APR :{" "}
-            {apy14Day ? (
-              <span
-                className={apy14Day > 0 ? "apy-green" : "apy-red"}
-              >{`${apy14Day}%`}</span>
-            ) : (
-              "-"
-            )}
-          </p>
-          <p>
-            30-Day APR :{" "}
-            {apy30Day ? (
-              <span
-                className={apy30Day > 0 ? "apy-green" : "apy-red"}
-              >{`${apy30Day}%`}</span>
-            ) : (
-              "-"
-            )}
-          </p>
-
-          <p>Net LTV: {ltv ? ltv : "-"}</p>
-          <p>Leverage: {leverage ? leverage : "-"}x</p>
           <a
             target="_blank"
             href="https://docs.sandclock.org/current/strategies/v2/emerald-sceth"

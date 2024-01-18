@@ -101,9 +101,9 @@ class NavContainer extends React.Component {
           <Grid item sm={12} md={8}>
             <img src={logostill} className={classes.logo} />
             <div className={classes.title}>
-              <span className={classes.title}>scETH Vault</span>
+              <span className={classes.title}>scETH - Arbitrum</span>
               <span className={classes.subtitle}>
-                Leveraged Staking on your ETH
+                Mainnet ETH Yields on Arbitrum
               </span>
             </div>
           </Grid>

@@ -11,6 +11,9 @@ import wethABI from "./abi/Weth.abi.json";
 import chainLinkABI from "./abi/ChainlinkOracle.abi.json";
 import priceConverterABI from "./abi/PriceConverter.abi.json";
 import wstEthABI from "./abi/Wsteth.abi.json";
+import Quoter from "@uniswap/v3-periphery/artifacts/contracts/lens/Quoter.sol/Quoter.json";
+import IUniswapV3PoolABI from "./abi/UniswapV3Pool.abi.json";
+import SwapRouterABI from "./abi/SwapRouter.abi.json";
 
 import NavContainer from "./containers/Nav";
 import JoinExitContainer from "./containers/JoinExit";
@@ -48,25 +51,27 @@ const styles = () => ({
 });
 
 const web3 = new Web3(
-  new Web3.providers.HttpProvider(config.defaultWeb3Provider)
+  new Web3.providers.HttpProvider(config.arbitrumWeb3Provider)
 );
 
 const initialState = {
   web3: web3,
   web3Failure: false,
-  network: 1,
-  potObject: new web3.eth.Contract(potABI, config.MCD_POT),
-  daiObject: new web3.eth.Contract(daiABI, config.MCD_DAI),
-  chaiObject: new web3.eth.Contract(chaiABI, config.CHAI),
-  scEthObject: new web3.eth.Contract(scEthABI, config.scETH),
-  wethABI: new web3.eth.Contract(wethABI, config.WETH),
-  ethUsdObject: new web3.eth.Contract(chainLinkABI, config.ETHUSD),
-  stethEthObject: new web3.eth.Contract(chainLinkABI, config.STETHETH),
-  priceConverterObject: new web3.eth.Contract(
-    priceConverterABI,
-    config.PRICE_CONVERTER
+  network: 42161,
+  scEthObject: new web3.eth.Contract(scEthABI, config.scETH_ARBITRUM),
+  wethObject: new web3.eth.Contract(wethABI, config.WETH_ARBITRUM),
+  quoterUniswapV3Arbitrum: new web3.eth.Contract(
+    Quoter.abi,
+    config.UNISWAPV3_QUOTER_ARBITRUM
   ),
-  wstEthObject: new web3.eth.Contract(wstEthABI, config.WSTETH),
+  uniswapV3poolArbitrum: new web3.eth.Contract(
+    IUniswapV3PoolABI,
+    config.UNISWAPV3_ARB_WETH_POOL
+  ),
+  swapRouterArbitrum: new web3.eth.Contract(
+    SwapRouterABI,
+    config.UNISWAPV3_SWAP_ROUTER_ARBITRUM
+  ),
   walletAddress: "",
   walletConnecting: false,
   walletType: "",
@@ -87,11 +92,6 @@ const initialState = {
   joinexitAction: 0,
   transferAmount: new WadDecimal(0),
   ethUsdRate: "1",
-  ltv: "",
-  leverage: "",
-  apy7Day: "",
-  apy30Day: "",
-  apy14Day: "",
 };
 
 class App extends React.Component {
@@ -123,13 +123,13 @@ class App extends React.Component {
               <TransferChaiContainer />
             </Grid>
             <Grid item xs={12} className={classes.footer}>
-              Interacting with the scETH contract at:{" "}
+              Interacting with the Arbitrum scETH token at:{" "}
               <a
                 target="_blank"
-                href={"https://etherscan.io/token/" + config.scETH}
+                href={"https://arbiscan.io/token/" + config.scETH_ARBITRUM}
                 rel="noopener noreferrer"
               >
-                {config.scETH}
+                {config.scETH_ARBITRUM}
               </a>
               <br />
               <TotalSupplyContainer />

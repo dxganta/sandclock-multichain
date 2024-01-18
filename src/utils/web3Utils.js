@@ -1,24 +1,17 @@
 import Web3 from "web3";
 import config from "../config.json";
-import daiABI from "../abi/Dai.abi.json";
-import potABI from "../abi/Pot.abi.json";
 import scEthABI from "../abi/scEth.abi.json";
 import wethABI from "../abi/Weth.abi.json";
-import chainLinkABI from "../abi/ChainlinkOracle.abi.json";
-import priceConverterABI from "../abi/PriceConverter.abi.json";
-import wstEthABI from "../abi/Wsteth.abi.json";
+import Quoter from "@uniswap/v3-periphery/artifacts/contracts/lens/Quoter.sol/Quoter.json";
+import IUniswapV3PoolABI from "../abi/UniswapV3Pool.abi.json";
 
 let Decimal = require("decimal.js-light");
 Decimal = require("toformat")(Decimal);
 
-const daiAddress = config.MCD_DAI;
-const potAddress = config.MCD_POT;
-const scEthAddress = config.scETH;
-const wethAddress = config.WETH;
-const ethUsdAddress = config.ETHUSD;
-const priceConverterAddress = config.PRICE_CONVERTER;
-const wstEthAddress = config.WSTETH;
-const stethEthAddress = config.STETHETH;
+const scEthAddress = config.scETH_ARBITRUM;
+const wethAddress = config.WETH_ARBITRUM;
+const quoterAddress = config.UNISWAPV3_QUOTER_ARBITRUM;
+const poolAddress = config.UNISWAPV3_ARB_WETH_POOL;
 
 export const WadDecimal = Decimal.clone({
   rounding: 1, // round down
@@ -55,16 +48,17 @@ export const getPotDsr = async function () {
 
 export const getPotChi = async function () {
   const { store } = this.props;
+  const quoter = store.get("quoterUniswapV3Arbitrum");
 
-  const scEth = store.get("scEthObject");
-  if (!scEth) return;
-  const totalSupply = await scEth.methods.totalSupply().call();
-  const totalAssets = await scEth.methods.totalAssets().call();
-
-  const chiRaw = new WadDecimal(totalAssets)
-    .mul("1e18")
-    .div(totalSupply)
-    .toFixed(0);
+  const chiRaw = await quoter.methods
+    .quoteExactInputSingle(
+      scEthAddress,
+      wethAddress,
+      500,
+      "1000000000000000000",
+      0
+    )
+    .call();
 
   if (chiRaw === store.get("chiRaw")) return;
   store.set("chiRaw", chiRaw);
@@ -73,16 +67,16 @@ export const getPotChi = async function () {
 };
 
 // get Weth Allowance
-export const getDaiAllowance = async function () {
-  const { store } = this.props;
-  const walletAddress = store.get("walletAddress");
-  const weth = store.get("wethObject");
-  if (!weth || !walletAddress) return;
-  const daiAllowance = await weth.methods
-    .allowance(walletAddress, scEthAddress)
-    .call();
-  store.set("daiAllowance", new WadDecimal(daiAllowance).div("1e18"));
-};
+// export const getDaiAllowance = async function () {
+//   const { store } = this.props;
+//   const walletAddress = store.get("walletAddress");
+//   const weth = store.get("wethObject");
+//   if (!weth || !walletAddress) return;
+//   const daiAllowance = await weth.methods
+//     .allowance(walletAddress, scEthAddress)
+//     .call();
+//   store.set("daiAllowance", new WadDecimal(daiAllowance).div("1e18"));
+// };
 
 // get Weth Balance
 export const getDaiBalance = async function () {
@@ -116,102 +110,6 @@ export const getChaiBalance = async function () {
   store.set("chaiBalance", scEthBalance);
 };
 
-async function getBlockNumberAtPast(web3, numberOfDays) {
-  const secondsPerDay = 24 * 60 * 60;
-  const blockTime = 12; // in seconds
-
-  const currentBlockNumber = await web3.eth.getBlockNumber();
-  const blocksPerDay = secondsPerDay / blockTime;
-  const blocksDaysAgo = currentBlockNumber - blocksPerDay * numberOfDays;
-
-  // console.log(numberOfDays, blockTime, currentBlockNumber, blocksDaysAgo);
-  return Math.round(blocksDaysAgo);
-}
-
-async function getPps(weth, scEth, wstEth, blockNumber) {
-  let totalCollateral = await scEth.methods.totalCollateral().call(blockNumber);
-
-  totalCollateral = await wstEth.methods
-    .getStETHByWstETH(totalCollateral)
-    .call(blockNumber);
-
-  const totalDebt = await scEth.methods.totalDebt().call(blockNumber);
-
-  // get balance of weth in contract
-  const float = await weth.methods.balanceOf(scEthAddress).call(blockNumber);
-
-  const totalAssets = new WadDecimal(float).add(totalCollateral - totalDebt);
-
-  const totalSupply = await scEth.methods.totalSupply().call(blockNumber);
-
-  const pps = new WadDecimal(totalAssets).div(totalSupply);
-
-  return pps;
-}
-
-export const getAPY = async function () {
-  const { store } = this.props;
-  const web3 = store.get("web3");
-  const scEth = store.get("scEthObject");
-  const wstEth = store.get("wstEthObject");
-  const weth = store.get("wethObject");
-
-  const pps = await getPps(weth, scEth, wstEth, "latest");
-
-  const days = [7, 14, 30];
-
-  // loop through days
-  for (let i = 0; i < days.length; i++) {
-    const blockNumberPrev = await getBlockNumberAtPast(web3, days[i]);
-
-    const ppsPrev = await getPps(weth, scEth, wstEth, blockNumberPrev);
-
-    const apy = ((pps - ppsPrev) * 365) / days[i] / ppsPrev;
-
-    // console.log(blockNumberPrev, days[i], apy.toString());
-
-    // const apy =
-    //   (1 + (pps - ppsPrev) / ppsPrev) ** Math.round(365 / days[i]) - 1;
-
-    store.set(`apy${days[i]}Day`, (apy * 100).toFixed(2));
-  }
-};
-
-// todo: getscETHTotalTVL
-export const getChaiTotalSupply = async function () {
-  const { store } = this.props;
-  const web3 = store.get("web3");
-  const ethUsdObject = store.get("ethUsdObject");
-  const priceConverter = store.get("priceConverterObject");
-  const scEth = store.get("scEthObject");
-  if (!scEth) return;
-
-  if (ethUsdObject) {
-    const ethUsdRaw = await ethUsdObject.methods.latestAnswer().call();
-
-    store.set("ethUsdRate", new WadDecimal(ethUsdRaw).div("1e8"));
-
-    const totalDebt = await scEth.methods.totalDebt().call();
-    let totalCollateral = await scEth.methods.totalCollateral().call();
-
-    totalCollateral = await priceConverter.methods
-      .wstEthToEth(totalCollateral)
-      .call();
-
-    const leverage = new WadDecimal(totalCollateral)
-      .div(totalCollateral - totalDebt)
-      .toFixed(1);
-
-    const ltv = new WadDecimal(totalDebt).div(totalCollateral).toFixed(3);
-    store.set("ltv", ltv);
-    store.set("leverage", leverage);
-  }
-
-  const scEthTvlRaw = await scEth.methods.totalAssets().call();
-  const scEthTvlDecimal = new WadDecimal(scEthTvlRaw);
-  store.set("chaiTotalSupply", toDai.bind(this)(scEthTvlDecimal));
-};
-
 export const toChai = function (daiAmount) {
   const daiDecimal = daiAmount
     ? new WadDecimal(daiAmount).div("1e18")
@@ -232,42 +130,28 @@ export const toDai = function (chaiAmount) {
   return chiDecimal.mul(chaiDecimal);
 };
 
-// export const updateEthToUsd = async function () {
-//   const { store } = this.props;
-//   const ethUsdObject = store.get("ethUsdObject");
-//   if (!ethUsdObject) return;
-//   const ethUsdRaw = await ethUsdObject.methods.latestAnswer().call();
-//   const ethUsd = new WadDecimal(ethUsdRaw).div("1e8");
-//   store.set("ethUsdRate", ethUsd);
-// };
-
 export const setupContracts = function () {
   const { store } = this.props;
   const web3 = store.get("web3");
-  store.set("potObject", new web3.eth.Contract(potABI, potAddress));
-  store.set("daiObject", new web3.eth.Contract(daiABI, daiAddress));
   store.set("scEthObject", new web3.eth.Contract(scEthABI, scEthAddress));
   store.set("wethObject", new web3.eth.Contract(wethABI, wethAddress));
-  store.set("ethUsdObject", new web3.eth.Contract(chainLinkABI, ethUsdAddress));
   store.set(
-    "priceConverterObject",
-    new web3.eth.Contract(priceConverterABI, priceConverterAddress)
+    "quoterUniswapV3Arbitrum",
+    new web3.eth.Contract(Quoter.abi, quoterAddress)
   );
-  store.set("wstEthObject", new web3.eth.Contract(wstEthABI, wstEthAddress));
   store.set(
-    "stethEthObject",
-    new web3.eth.Contract(chainLinkABI, stethEthAddress)
+    "uniswapV3poolArbitrum",
+    new web3.eth.Contract(IUniswapV3PoolABI, poolAddress)
   );
 };
 
 export const getData = async function () {
   getPotDsr.bind(this)();
   getPotChi.bind(this)();
-  getDaiAllowance.bind(this)();
+  // getDaiAllowance.bind(this)();
   getDaiBalance.bind(this)();
   getChaiBalance.bind(this)();
-  getChaiTotalSupply.bind(this)();
-  getAPY.bind(this)();
+  // getChaiTotalSupply.bind(this)();
   // updateEthToUsd.bind(this)();
 };
 
