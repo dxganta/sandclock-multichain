@@ -129,7 +129,9 @@ class App extends React.Component {
               </a>
               <br />
               <TotalSupplyContainer />
-              <a href="https://www.sandclock.org/">Learn more about scETH</a>
+              <a href="https://docs.sandclock.org/current/strategies/v2/emerald-sceth">
+                Learn more about scETH
+              </a>
             </Grid>
             <Grid item xs={12} className={classes.footer}>
               UI Forked from{" "}

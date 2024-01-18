@@ -12,6 +12,7 @@ import CardContent from "@material-ui/core/CardContent";
 import { toDai } from "../utils/web3Utils";
 
 import logostill from "../assets/logo512.png";
+import config from "../config.json";
 
 const styles = () => ({
   container: {
@@ -21,6 +22,7 @@ const styles = () => ({
   },
 });
 
+const addLiquidityUrl = `https://app.uniswap.org/add/${config.scETH_ARBITRUM}/${config.WETH_ARBITRUM}`;
 class ChaiBalanceContainer extends React.Component {
   async componentDidMount() {
     // update data periodically
@@ -54,12 +56,8 @@ class ChaiBalanceContainer extends React.Component {
           />
           <p>1 scETH = {chi ? `${chi}` : "?"} WETH</p>
           <p>scETH balance: {chaiBalance ? `${chaiBalance}` : "-"}</p>
-          <a
-            target="_blank"
-            href="https://docs.sandclock.org/current/strategies/v2/emerald-sceth"
-            rel="noopener noreferrer"
-          >
-            Learn more
+          <a target="_blank" href={addLiquidityUrl} rel="noopener noreferrer">
+            Add Liquidity
           </a>
         </CardContent>
       </Card>
