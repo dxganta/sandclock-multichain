@@ -4,6 +4,7 @@ import scEthABI from "../abi/scEth.abi.json";
 import wethABI from "../abi/Weth.abi.json";
 import Quoter from "@uniswap/v3-periphery/artifacts/contracts/lens/Quoter.sol/Quoter.json";
 import IUniswapV3PoolABI from "../abi/UniswapV3Pool.abi.json";
+import SwapRouterABI from "../abi/SwapRouter.abi.json";
 
 let Decimal = require("decimal.js-light");
 Decimal = require("toformat")(Decimal);
@@ -142,6 +143,10 @@ export const setupContracts = function () {
   store.set(
     "uniswapV3poolArbitrum",
     new web3.eth.Contract(IUniswapV3PoolABI, poolAddress)
+  );
+  store.set(
+    "swapRouterArbitrum",
+    new web3.eth.Contract(SwapRouterABI, config.UNISWAPV3_SWAP_ROUTER_ARBITRUM)
   );
 };
 
