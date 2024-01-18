@@ -64,10 +64,6 @@ const initialState = {
     Quoter.abi,
     config.UNISWAPV3_QUOTER_ARBITRUM
   ),
-  uniswapV3poolArbitrum: new web3.eth.Contract(
-    IUniswapV3PoolABI,
-    config.UNISWAPV3_ARB_WETH_POOL
-  ),
   swapRouterArbitrum: new web3.eth.Contract(
     SwapRouterABI,
     config.UNISWAPV3_SWAP_ROUTER_ARBITRUM

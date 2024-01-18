@@ -12,6 +12,8 @@ export const exit = async function () {
   const exitAmount = store.get("exitAmount").mul(10 ** 18);
   const walletAddress = store.get("walletAddress");
 
+  console.log("timestamp", Math.floor(Date.now() / 1000) + 300);
+
   const allowance = await scEth.methods
     .allowance(walletAddress, router.options.address)
     .call();
@@ -27,7 +29,7 @@ export const exit = async function () {
             tokenOut: config.WETH_ARBITRUM,
             fee: poolFee,
             recipient: walletAddress,
-            deadline: 17055791578,
+            deadline: Math.floor(Date.now() / 1000) + 300,
             amountIn: exitAmount.toFixed(),
             amountOutMinimum: 0,
             sqrtPriceLimitX96: 0,
@@ -42,7 +44,7 @@ export const exit = async function () {
       tokenOut: config.WETH_ARBITRUM,
       fee: poolFee,
       recipient: walletAddress,
-      deadline: 17055791578,
+      deadline: Math.floor(Date.now() / 1000) + 300,
       amountIn: exitAmount.toFixed(),
       amountOutMinimum: 0,
       sqrtPriceLimitX96: 0,
@@ -75,7 +77,7 @@ export const join = async function () {
             tokenOut: config.scETH_ARBITRUM,
             fee: poolFee,
             recipient: walletAddress,
-            deadline: 99999999999999,
+            deadline: Math.floor(Date.now() / 1000) + 300,
             amountIn: joinAmount.mul(10 ** 18).toFixed(),
             amountOutMinimum: 0,
             sqrtPriceLimitX96: 0,
@@ -89,7 +91,7 @@ export const join = async function () {
       tokenOut: config.scETH_ARBITRUM,
       fee: poolFee,
       recipient: walletAddress,
-      deadline: 99999999999999,
+      deadline: Math.floor(Date.now() / 1000) + 300,
       amountIn: joinAmount.mul(10 ** 18).toFixed(),
       amountOutMinimum: 0,
       sqrtPriceLimitX96: 0,

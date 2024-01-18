@@ -3,7 +3,6 @@ import config from "../config.json";
 import scEthABI from "../abi/scEth.abi.json";
 import wethABI from "../abi/Weth.abi.json";
 import Quoter from "@uniswap/v3-periphery/artifacts/contracts/lens/Quoter.sol/Quoter.json";
-import IUniswapV3PoolABI from "../abi/UniswapV3Pool.abi.json";
 import SwapRouterABI from "../abi/SwapRouter.abi.json";
 
 let Decimal = require("decimal.js-light");
@@ -12,7 +11,6 @@ Decimal = require("toformat")(Decimal);
 const scEthAddress = config.scETH_ARBITRUM;
 const wethAddress = config.WETH_ARBITRUM;
 const quoterAddress = config.UNISWAPV3_QUOTER_ARBITRUM;
-const poolAddress = config.UNISWAPV3_ARB_WETH_POOL;
 
 export const WadDecimal = Decimal.clone({
   rounding: 1, // round down
@@ -139,10 +137,6 @@ export const setupContracts = function () {
   store.set(
     "quoterUniswapV3Arbitrum",
     new web3.eth.Contract(Quoter.abi, quoterAddress)
-  );
-  store.set(
-    "uniswapV3poolArbitrum",
-    new web3.eth.Contract(IUniswapV3PoolABI, poolAddress)
   );
   store.set(
     "swapRouterArbitrum",
