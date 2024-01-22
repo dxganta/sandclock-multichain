@@ -71,7 +71,7 @@ class NavContainer extends React.Component {
           <DialogTitle id="alert-dialog-title">{"Wrong network"}</DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              <p>Switch to mainnet to interact with this app</p>
+              <p>Switch to Arbitrum to interact with this app</p>
             </DialogContentText>
           </DialogContent>
         </Dialog>
